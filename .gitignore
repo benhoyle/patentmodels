@@ -29,6 +29,8 @@ var/
 npm-debug.log
 .installed.cfg
 *.egg
+build/
+*.egg-info
 
 # Installer logs
 pip-log.txt

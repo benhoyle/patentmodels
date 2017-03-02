@@ -15,6 +15,7 @@ setup(
     author_email='benjhoyle@gmail.com',
     url='https://github.com/benhoyle/patentmodels',
     license='MIT',
+    install_requires=['nltk'],
     packages=find_packages(exclude=('tests', 'docs'))
     # packages=['patentmodels']
 )
