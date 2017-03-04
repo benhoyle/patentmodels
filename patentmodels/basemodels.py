@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import nltk
+from nltk import word_tokenize, pos_tag
 # Used for frequency counts
 from collections import Counter
 
-# Import nltk stopwords - (swap with our own list with patent stopwords)
-eng_stopwords = nltk.corpus.stopwords.words('english')
+from patentmodels.utils import check_list, ENG_STOPWORDS
 
 
 class BaseTextBlock:
@@ -18,7 +17,7 @@ class BaseTextBlock:
 
     def set_words(self):
         """ Tokenise text and store as variable. """
-        self.words = nltk.word_tokenize(self.text)
+        self.words = word_tokenize(self.text)
         return self.words
 
     def get_word_freq(self, stopwords=True, normalize=True):
@@ -31,7 +30,7 @@ class BaseTextBlock:
             counter = Counter(
                 [
                     w.lower() for w in self.words
-                    if w.isalpha() and w.lower() not in eng_stopwords
+                    if w.isalpha() and w.lower() not in ENG_STOPWORDS
                 ]
             )
         else:
@@ -46,7 +45,7 @@ class BaseTextBlock:
         """ Get the parts of speech."""
         if not self.words:
             self.set_words()
-        pos_list = nltk.pos_tag(self.words)
+        pos_list = pos_tag(self.words)
         # Hard set 'comprising' as VBG
         pos_list = [
             (word, pos) if word != 'comprising'
@@ -71,8 +70,16 @@ class BaseTextBlock:
 
 class BaseTextSet:
     """ Abstract object to model a collection of text blocks. """
-    def __init__(self, units):
-        """ Units need to be derived from BaseTextBlock. """
+    def __init__(self, initial_input):
+        """
+        Initialise a base text set
+
+        :param initial_input: Initial input as long string or list
+        of strings
+        :type initial_input: str or list
+        :return: None
+        """
+        units = check_list(initial_input)
         self.units = units
         self.count = len(self.units)
 

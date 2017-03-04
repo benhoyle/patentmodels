@@ -4,9 +4,6 @@ import re
 import nltk
 from patentmodels.basemodels import BaseTextBlock
 
-# Import nltk stopwords - (swap with our own list with patent stopwords)
-eng_stopwords = nltk.corpus.stopwords.words('english')
-
 
 def ends_with(s1, s2):
     """See if s1 ends with s2."""

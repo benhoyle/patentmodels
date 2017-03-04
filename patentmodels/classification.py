@@ -2,12 +2,7 @@
 
 import re
 
-
-def check_list(listvar):
-    """Turns single items into a list of 1."""
-    if not isinstance(listvar, list):
-        listvar = [listvar]
-    return listvar
+from patentmodels.utils import check_list
 
 
 class Classification():

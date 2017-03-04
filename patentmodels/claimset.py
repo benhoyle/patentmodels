@@ -3,9 +3,6 @@
 import nltk
 from patentmodels.basemodels import BaseTextSet
 
-# Import nltk stopwords - (swap with our own list with patent stopwords)
-eng_stopwords = nltk.corpus.stopwords.words('english')
-
 
 class Claimset(BaseTextSet):
     """ Object to model a claim set. """

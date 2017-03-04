@@ -2,9 +2,6 @@
 import nltk
 from patentmodels.basemodels import BaseTextSet, BaseTextBlock
 
-# Import nltk stopwords - (swap with our own list with patent stopwords)
-eng_stopwords = nltk.corpus.stopwords.words('english')
-
 
 class PatentDoc:
     """ Object to model a patent document. """
