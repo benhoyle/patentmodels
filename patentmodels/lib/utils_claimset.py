@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from nltk.tokenize import sent_tokenize
 import re
-from patentmodels.claim import check_claim_class
+import operator
+import warnings
+from patentmodels.claim import check_claim_class, Claim
 from patentmodels.lib.utils_claim import (
     get_number, detect_dependency, detect_category
 )
@@ -16,10 +18,17 @@ def nltk_extract_claims(text):
     sent_list = sent_tokenize(text)
     # On a test string this returned a list with the claim number
     # and then the claim text as separate items
-    claims_list = [
-        (int(sent_list[i]), sent_list[i+1])
-        for i in xrange(0, len(sent_list), 2)
-        ]
+    claims_list = []
+    for i in range(0, len(sent_list), 2):
+        try:
+            number = int(sent_list[i].split(".")[0])
+        except:
+            number = 0
+
+        claims_list.append(
+            (number, sent_list[i+1])
+        )
+
     return claims_list
 
 
@@ -35,8 +44,7 @@ def regex_extract_claims(text):
     claim_r = r'((\d+)\s*\.[ |\t])?([A-Z].*?[\.])\s*\n'
     matches = re.finditer(claim_r, text, re.DOTALL)
     claimset_list = []
-    match_num = 0
-    for match in enumerate(matches):
+    for match_num, match in enumerate(matches):
         match_num = match_num + 1
         claim_text = match.group(3)
         if match.group(2):
@@ -195,3 +203,54 @@ def check_dependencies(claimset_data):
         return True
     except:
         return False
+
+
+def clean_data(data_in):
+    """
+    Cleans and checks data_in.
+
+    data_in may be a list of strings or a giant string
+    """
+
+    # Check & pass through if a set of claim objects already
+    if check_set_claims(data_in):
+        return data_in
+
+    claimset_data = {}
+    # Generate a string of all data in
+    if isinstance(data_in, list):
+        string_data_in = '\n'.join(data_in)
+
+        # Check if claimset data has tuples with claim numbers
+        if not check_for_number(data_in):
+            claimset_data['passed'] = get_numbers(data_in)
+    else:
+        string_data_in = data_in
+        claimset_data['passed'] = []
+
+    # Use regex to split into claims with number
+    claimset_data['regex'] = regex_extract_claims(string_data_in)
+
+    # Use sentence tokenization to split into claims with number
+    claimset_data['nltk'] = nltk_extract_claims(string_data_in)
+
+    scores = {}
+
+    scores['regex'] = score_claimset(claimset_data['regex'])
+    scores['nltk'] = score_claimset(claimset_data['nltk'])
+    scores['passed'] = score_claimset(claimset_data['passed'])
+
+    sorted_scores = sorted(scores.items(), key=operator.itemgetter(1))
+
+    # Top score
+    top_score = sorted_scores[-1]
+    if top_score[1] < 1:
+        warnings.warn("Some claim checks failed for the claimset")
+    data_out = claimset_data[top_score[0]]
+
+    claimset_out = [
+                Claim(claimtext, number)
+                for number, claimtext in data_out
+                ]
+
+    return claimset_out

@@ -7,15 +7,27 @@ class TestGeneral(object):
     """ General set of tests."""
 
     def test_claims(self):
-        """ Test claim objects. """
+        """ Test Claim objects. """
         claim = Claim("Claim 1 has an x.", 1)
         assert claim.number == 1
         assert "has an x" in claim.text
 
     def test_description(self):
-        """ Test description objects. """
+        """ Test Description objects. """
         desc = Description(["one", "two", "three"])
         assert "two" in desc.get_paragraph(2).text
+
+    def test_claimset(self):
+        """ Test Claimset objects. """
+        claims = [
+            "{0}. Claim {0} has an x.".format(num)
+            for num in range(1, 11)
+            ]
+        claimset = Claimset(claims)
+
+        assert claimset.count == 10
+        assert "Claim 5 has an x" in claimset.get_claim(5).text
+        assert isinstance(claimset.claims[2], Claim)
 
     def test_init(self):
         """ Test all objects initialise. """
