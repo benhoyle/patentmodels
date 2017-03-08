@@ -3,16 +3,15 @@
 import re
 import nltk
 from patentmodels.basemodels import BaseTextBlock
+from patentmodels.lib.utils_claim import (
+    ends_with, get_number, detect_dependency, detect_category
+)
+import warnings
 
 
-def ends_with(s1, s2):
-    """See if s1 ends with s2."""
-    pattern = re.compile(r'(' + re.escape(s2) + ')$')
-    located = pattern.search(s1)
-    if located:
-        return True
-    else:
-        return False
+def check_claim_class(potential_claim):
+    """ Check if passed object is of type Claim. """
+    return isinstance(potential_claim, Claim)
 
 
 class Claim(BaseTextBlock):
@@ -23,33 +22,32 @@ class Claim(BaseTextBlock):
         # Have a 'lazy' flag on this to load some of information when needed?
 
         # Check for and extract claim number
-        parsed_number, text = self.get_number(text)
+        parsed_number, text = get_number(text)
         if number:
-            number = number
             if number != parsed_number:
-                print(
-                    """Warning: detected claim number
+                warnings.warn(
+                    """Detected claim number
                     does not equal passed claim number."""
                     )
         else:
             number = parsed_number
 
-        super(Claim, self).__init__(text, number)
+        self.text = text
+        self.number = number
 
         # Get category
-        self.category = self.detect_category()
+        self.category = detect_category(self.text)
 
         # Get dependency
-        parsed_dependency = self.detect_dependency()
+        parsed_dependency = detect_dependency(self.text)
         if dependency:
             self.dependency = dependency
             if dependency != parsed_dependency:
-                # print(
-                #    "Warning: detected dependency does "
-                #    "not equal passed dependency."
-                #    )
-                # Quick check - parsed dependency likely to be correct
-                # if passed dependency >= claim number
+                warnings.warn(
+                    """Detected dependency does
+                    not equal passed dependency."""
+                    )
+
                 if dependency >= self.number:
                     self.dependency = parsed_dependency
         else:
@@ -68,32 +66,6 @@ class Claim(BaseTextBlock):
 
         # Split claim into features
         # self.features = self.split_into_features()
-
-    def get_number(self, text):
-        """Extracts the claim number from the text."""
-        p = re.compile('\d+\.')
-        located = p.search(text)
-        if located:
-            # Set claim number as digit before fullstop
-            number = int(located.group()[:-1])
-            text = text[located.end():].strip()
-        else:
-            number = 0
-            text = text
-        return number, text
-
-    def detect_category(self):
-        """
-        Attempts to determine and return a string containing the
-        claim category.
-        """
-        p = re.compile('(A|An|The)\s([\w-]+\s)*(method|process)\s(of|for)?')
-        located = p.search(self.text)
-        # Or store as part of claim object property?
-        if located:
-            return "method"
-        else:
-            return "system"
 
     def determine_entities(self):
         """ Determines noun entities within a patent claim.
@@ -115,33 +87,6 @@ class Claim(BaseTextBlock):
         # ent_tree = self.determine_entities(self.pos)
         # traverse(ent_tree)
         pass
-
-    def detect_dependency(self):
-        """
-        Attempts to determine if the claim set out in text is dependent
-        - if it is dependency is returned - if claim is deemed independent
-        0 is returned as dependency
-        """
-        p = re.compile(
-            '(of|to|with|in)?\s(C|c)laims?\s\d+'
-            '((\sto\s\d+)|(\sor\s(C|c)laim\s\d+))?(,\swherein)?'
-        )
-        located = p.search(self.text)
-        if located:
-            num = re.compile('\d+')
-            dependency = int(num.search(located.group()).group())
-        else:
-            # Also check for "preceding claims" or "previous claims" = claim 1
-            pre = re.compile(
-                '\s(preceding|previous)\s(C|c)laims?(,\swherein)?'
-            )
-            located = pre.search(self.text)
-            if located:
-                dependency = 1
-            else:
-                dependency = 0
-        # Or store as part of claim object property?
-        return dependency
 
     def split_into_features(self):
         """ Attempts to split a claim into features.
@@ -230,3 +175,24 @@ class Claim(BaseTextBlock):
             for i, (word, part, np) in list(enumerate(self.word_data))
             ]
         return {"claim": {"words": words}}
+
+    @classmethod
+    def check_claim(cls, text, number=None):
+        """
+        Cleans and checks claim text.
+
+        :param text: Claim text
+        :type text: str
+        :param number: Claim number
+        :type text: integer
+        :return: None
+        """
+        parsed_number, text = get_number(text)
+        if number:
+            if number != parsed_number:
+                print(
+                    """Warning: detected claim number
+                    does not equal passed claim number."""
+                    )
+        else:
+            number = parsed_number

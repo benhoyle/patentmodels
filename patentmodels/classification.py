@@ -2,7 +2,7 @@
 
 import re
 
-from patentmodels.utils import check_list
+from patentmodels.lib.utils import check_list
 
 
 class Classification():

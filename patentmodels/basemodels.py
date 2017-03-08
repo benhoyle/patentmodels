@@ -4,7 +4,7 @@ from nltk import word_tokenize, pos_tag
 # Used for frequency counts
 from collections import Counter
 
-from patentmodels.utils import check_list, ENG_STOPWORDS
+from patentmodels.lib.utils import check_list, ENG_STOPWORDS
 
 
 class BaseTextBlock:
@@ -83,6 +83,7 @@ class BaseTextSet:
         self.units = units
         self.count = len(self.units)
 
+    @property
     def text(self):
         """ Return unit set as text string. """
         return "\n".join([u.text for u in self.units])

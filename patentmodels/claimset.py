@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
+import operator
+import warnings
 
-import nltk
 from patentmodels.basemodels import BaseTextSet
+from patentmodels.claim import Claim
+from patentmodels.lib.utils_claimset import (
+    regex_extract_claims, check_for_number, check_set_claims,
+    get_numbers, score_claimset, nltk_extract_claims
+)
 
 
 class Claimset(BaseTextSet):
@@ -11,6 +17,15 @@ class Claimset(BaseTextSet):
     def __getattr__(self, name):
         if name == "claims":
             return self.units
+
+    def __init__(self, initial_input):
+        """ Process initial input to clean data and check claims. """
+
+        if check_set_claims(initial_input):
+            self.units = initial_input
+            self.count = len(self.units)
+        else:
+            pass
 
     def get_claim(self, number):
         """ Return claim having the passed number. """
@@ -92,38 +107,53 @@ class Claimset(BaseTextSet):
             # Build an initial dictionary
             pass
 
-    def extract_claims(self, text):
-        """ Attempts to extract claims as a list from a large text string.
-        param string text: string containing several claims
-        """
-        sent_list = nltk.tokenize.sent_tokenize(text)
-        # On a test string this returned a list with the claim number
-        # and then the claim text as separate items
-        claims_list = [
-            " ".join(sent_list[i:i+2])
-            for i in xrange(0, len(sent_list), 2)
-            ]
-        return claims_list
-
     @classmethod
-    def clean_data(cls, claim_data):
+    def clean_data(cls, data_in):
         """
         Cleans and checks claim_data.
 
         claim_data may be a list of strings or a giant string
         """
 
-        # If claims_data is a single string attempt to split into a list
-        """if not isinstance(claim_data, list):
-            claim_data = extract_claims(claim_data)
+        # Check & pass through if a set of claim objects already
+        if check_set_claims(data_in):
+            return data_in
 
-        claims = [get_number(claim) for claim in claims_list]
+        claimset_data = {}
+        # Generate a string of all data in
+        if isinstance(data_in, list):
+            string_data_in = '\n'.join(data_in)
 
-        for claim_no in range(1, len(claims)):
-            if claims[claim_no-1][0] != claim_no:
-                pass"""
+            # Check if claimset data has tuples with claim numbers
+            if not check_for_number(data_in):
+                claimset_data['passed'] = get_numbers(data_in)
+        else:
+            string_data_in = data_in
+            claimset_data['passed'] = []
 
-        # Checks
-        # - len(claims) = claims[-1] number
-        # -
-        pass
+        # Use regex to split into claims with number
+        claimset_data['regex'] = regex_extract_claims(string_data_in)
+
+        # Use sentence tokenization to split into claims with number
+        claimset_data['nltk'] = nltk_extract_claims(string_data_in)
+
+        scores = {}
+
+        scores['regex'] = score_claimset(claimset_data['regex'])
+        scores['nltk'] = score_claimset(claimset_data['nltk'])
+        scores['passed'] = score_claimset(claimset_data['passed'])
+
+        sorted_scores = sorted(scores.items(), key=operator.itemgetter(1))
+
+        # Top score
+        top_score = sorted_scores[-1]
+        if top_score[1] < 1:
+            warnings.warn("Some claim checks failed for the claimset")
+        data_out = claimset_data[top_score[0]]
+
+        claimset_out = [
+                    Claim(claimtext, number)
+                    for number, claimtext in data_out
+                    ]
+
+        return claimset_out
