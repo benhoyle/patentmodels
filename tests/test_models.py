@@ -55,3 +55,14 @@ class TestGeneral(object):
         assert "three" in pd2.text
         assert pd1.reading_time() > 0 and \
             pd1.reading_time() < pd2.reading_time()
+
+class TestDescription(object):
+    """ Test description functions. """
+    def test_init(self):
+        pass
+
+    def test_paragraphs(self):
+        pass
+
+    def test_bag_of_words(self):
+        pass
