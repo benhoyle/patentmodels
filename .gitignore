@@ -34,6 +34,7 @@ npm-debug.log
 *.egg
 build/
 *.egg-info
+.tox/
 
 # Venvs
 .venv/

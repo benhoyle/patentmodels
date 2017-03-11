@@ -36,6 +36,17 @@ class PatentDoc:
         # Words per minute = between 100 and 200
         return len(word_tokenize(self.text)) / reading_rate
 
+    def bag_of_words(
+        self, clean_non_words=True, clean_stopwords=True, stem_words=True
+        ):
+        """ Return tokens from description and claims. """
+        joined_bow = description.bag_of_words(
+            clean_non_words, clean_stopwords, stem_words
+            ) + claimset.bag_of_words(
+            clean_non_words, clean_stopwords, stem_words
+            )
+        remove_duplicates = list(set(joined_bow))
+        return remove_duplicates
 
 class Paragraph(BaseTextBlock):
     """ Object to model a paragraph of a patent description. """
