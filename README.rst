@@ -8,15 +8,16 @@ Usage
 ``from patentmodels import PatentDoc, Description, Claimset, Claims, Classification``
 
 Getting a bag of words from a patent description.
-
 ::
-    text = [("Lorem ipsum dolor sit amet, consectetur "
+    text = [
+        ("Lorem ipsum dolor sit amet, consectetur "
             "adipiscing elit. Integer nec odio. \n"),
-            ("Praesent libero 100. Sed cursus 102 ante dapibus diam. "
+        ("Praesent libero 100. Sed cursus 102 ante dapibus diam. "
             "Sed nisi. \n"),
-            ("Sed, dignissim lacinia, <nunc>. Curabitur tortor 2."
+        ("Sed, dignissim lacinia, <nunc>. Curabitur tortor 2."
             "Pellentesque nibh. \n"),
-            "Quisque volutpat 554 condimentum velit."]
+        "Quisque volutpat 554 condimentum velit."
+        ]
     desc = Description(text)
     desc.bag_of_words()
 
