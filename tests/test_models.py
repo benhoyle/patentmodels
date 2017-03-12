@@ -64,13 +64,13 @@ class TestDescription(object):
     @pytest.fixture()
     def description(self):
         return [
-            """Lorem ipsum dolor sit amet, consectetur
-            adipiscing elit. Integer nec odio. \n""",
-            """Praesent libero 100. Sed cursus 102 ante dapibus diam.
-            Sed nisi. \n""",
-            """Sed, dignissim lacinia, <nunc>. Curabitur tortor 2.
-            Pellentesque nibh. \n""",
-            """Quisque volutpat 554 condimentum velit."""
+            ("Lorem ipsum dolor sit amet, consectetur "
+            "adipiscing elit. Integer nec odio. \n"),
+            ("Praesent libero 100. Sed cursus 102 ante dapibus diam. "
+            "Sed nisi. \n"),
+            ("Sed, dignissim lacinia, <nunc>. Curabitur tortor 2."
+            "Pellentesque nibh. \n"),
+            "Quisque volutpat 554 condimentum velit."
         ]
 
     def test_init(self, description):
