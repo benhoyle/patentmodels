@@ -65,6 +65,9 @@ class Description(BaseTextSet):
         :return: None
         """
         input_list = check_list(initial_input)
+
+        # Need split large string into paragraphs method here
+
         para_list = []
         for para in input_list:
             if not isinstance(para, Paragraph):
@@ -73,8 +76,6 @@ class Description(BaseTextSet):
                 para_object = para
             para_list.append(para_object)
 
-        # self.units = para_list
-        # self.count = len(self.units)
         super(Description, self).__init__(para_list)
 
     def __getattr__(self, name):

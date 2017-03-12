@@ -104,22 +104,22 @@ class BaseTextSet:
     def appears_in(self, term):
         """ Returns unit string 'term' appears in. """
         return [u for u in self.units if u.appears_in(term)]
-        
+
     def bag_of_words(
         self, clean_non_words=True, clean_stopwords=True, stem_words=True
         ):
         """ Get an array of all the words in the patent doc text. """
         lowers = self.text.lower()
-        
-        if clean_non_words:
-            lowers = remove_non_words(lowers)
-        
+
         tokens = word_tokenize(lowers)
-        
+
+        if clean_non_words:
+            tokens = remove_non_words(tokens)
+
         if clean_stopwords:
             tokens = remove_stopwords(tokens)
-        
+
         if stem_words:
             tokens = stem(tokens)
-        
+
         return tokens

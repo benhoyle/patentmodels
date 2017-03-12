@@ -1,3 +1,4 @@
+import pytest
 from patentmodels import (
     PatentDoc, Description, Figures, Claimset, Claim, Classification
 )
@@ -56,13 +57,36 @@ class TestGeneral(object):
         assert pd1.reading_time() > 0 and \
             pd1.reading_time() < pd2.reading_time()
 
+
 class TestDescription(object):
     """ Test description functions. """
-    def test_init(self):
-        pass
+
+    @pytest.fixture()
+    def description(self):
+        return [
+            """Lorem ipsum dolor sit amet, consectetur
+            adipiscing elit. Integer nec odio. \n""",
+            """Praesent libero 100. Sed cursus 102 ante dapibus diam.
+            Sed nisi. \n""",
+            """Sed, dignissim lacinia, <nunc>. Curabitur tortor 2.
+            Pellentesque nibh. \n""",
+            """Quisque volutpat 554 condimentum velit."""
+        ]
+
+    def test_init(self, description):
+        """ Test object initialisation. """
+        desc = Description(description)
+        assert "<nunc>" in desc.get_paragraph(3).text
 
     def test_paragraphs(self):
         pass
 
-    def test_bag_of_words(self):
-        pass
+    def test_bag_of_words(self, description):
+        """ Test returning a bag of words. """
+        desc = Description(description)
+        bow = desc.bag_of_words()
+        assert "<nunc>" not in bow
+        assert "nunc" in bow
+        assert "554" not in bow
+        assert "." not in bow
+        assert "sed" in bow

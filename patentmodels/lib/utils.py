@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from nltk.corpus import stopwords
-from re import sub
-from nltk.stem.porter import * 
+from nltk.stem.porter import *
 
 # Extend these stopwords to include patent stopwords
 ENG_STOPWORDS = stopwords.words('english')
@@ -26,10 +25,10 @@ def safeget(dct, *keys):
     return dct
 
 
-def remove_non_words(text):
+def remove_non_words(tokens):
     """ Remove digits and punctuation from text. """
-    # translate has Python 2-3 issues - better to use re.sub
-    return sub('\W+', '', text)
+    # Alternative for complete text is re.sub('\W+', '', text)
+    return [w for w in tokens if w.isalpha()]
 
 
 def remove_stopwords(tokens):
@@ -37,7 +36,7 @@ def remove_stopwords(tokens):
     return [w for w in tokens if not w in ENG_STOPWORDS]
 
 
-def stem(tokens): 
+def stem(tokens):
     """ Stem passed text tokens. """
     stemmer = PorterStemmer()
     return [stemmer.stem(token) for token in tokens]
@@ -47,6 +46,6 @@ def lemmatise(tokens_with_pos):
     """ Lemmatise tokens using pos data. """
     pass
 
-    
+
 
 
