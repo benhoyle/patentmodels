@@ -8,7 +8,7 @@ with open('README.rst') as f:
 
 setup(
     name='patentmodels',
-    version='0.0.4',
+    version='0.0.5',
     description='Functions and datamodels for patent data.',
     long_description=readme,
     author='Ben Hoyle',
